@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Forum</title>
+    <title>Chat App</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -14,29 +14,41 @@
             margin: 0;
         }
 
-        .sidebar {
+        .chat-list {
             width: 250px;
             background: #111;
             padding: 20px;
-            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
         }
 
-        .container {
+            .chat-list div {
+                padding: 10px;
+                cursor: pointer;
+                border-bottom: 1px solid #FFA500;
+            }
+
+                .chat-list div:hover {
+                    background: #222;
+                }
+
+        .chat-container {
             flex-grow: 1;
             padding: 20px;
             background: #222;
             display: flex;
             flex-direction: column;
+            overflow-y: auto;
         }
 
-        .post {
-            border-bottom: 1px solid #FFA500;
-            padding: 10px 0;
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
         }
 
         textarea {
             width: 100%;
-            height: 80px;
+            height: 60px;
             margin-top: 10px;
             padding: 10px;
             background: #333;
@@ -57,65 +69,87 @@
             button:hover {
                 background: #ff8500;
             }
+
+        .chat-footer {
+            display: flex;
+            flex-direction: column;
+        }
     </style>
 </head>
 <body>
-    <div class="sidebar">
-        <h2>Chat History</h2>
-        <div id="chatHistory"></div>
-        <button onclick="changePassword()">Change Password</button>
+    <div class="chat-list">
+        <h2>Chats</h2>
+        <div id="chatList"></div>
+        <button onclick="newChat()">+ New Chat</button>
     </div>
-    <div class="container">
-        <h1>Simple Forum</h1>
-        <div id="posts"></div>
-        <textarea id="newPost" placeholder="Write a message..."></textarea>
-        <button onclick="addPost()">Post</button>
+    <div class="chat-container">
+        <h1 id="chatTitle">Select a Chat</h1>
+        <div id="chatMessages" class="chat-messages"></div>
+        <div class="chat-footer">
+            <textarea id="newMessage" placeholder="Type a message..."></textarea>
+            <button onclick="sendMessage()">Send</button>
+        </div>
     </div>
 
     <script>
-        let password = localStorage.getItem('forumPassword') || '12345';
-        let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
+        let socket = new WebSocket('wss://yourserver.com'); // Replace with actual WebSocket server
+        let chats = JSON.parse(localStorage.getItem('chats')) || {};
+        let activeChat = null;
 
-        function authenticate() {
-            let inputPassword = prompt("Enter password:");
-            if (inputPassword !== password) {
-                alert("Incorrect password!");
-                authenticate();
+        socket.onmessage = function(event) {
+            let data = JSON.parse(event.data);
+            if (data.chatId === activeChat) {
+                displayMessage(data.message);
             }
-        }
-        authenticate();
+        };
 
-        function addPost() {
-            let postContent = document.getElementById('newPost').value;
-            if (postContent.trim() !== "") {
-                let postDiv = document.createElement('div');
-                postDiv.classList.add('post');
-                postDiv.textContent = postContent;
-                document.getElementById('posts').appendChild(postDiv);
-                chatHistory.push(postContent);
-                localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
-                document.getElementById('newPost').value = "";
-                updateHistory();
-            }
+        function updateChatList() {
+            let chatListDiv = document.getElementById('chatList');
+            chatListDiv.innerHTML = '';
+            Object.keys(chats).forEach(chatId => {
+                let chatDiv = document.createElement('div');
+                chatDiv.textContent = chats[chatId].name;
+                chatDiv.onclick = () => openChat(chatId);
+                chatListDiv.appendChild(chatDiv);
+            });
         }
 
-        function updateHistory() {
-            document.getElementById('chatHistory').innerHTML = chatHistory.map(msg => `<div>${msg}</div>`).join('');
-        }
-        updateHistory();
-
-        function changePassword() {
-            let newPassword = prompt("Enter new password:");
-            if (newPassword) {
-                password = newPassword;
-                localStorage.setItem('forumPassword', password);
-                alert("Password changed successfully!");
+        function newChat() {
+            let chatName = prompt("Enter chat name:");
+            if (chatName) {
+                let chatId = Date.now().toString();
+                chats[chatId] = { name: chatName, messages: [] };
+                localStorage.setItem('chats', JSON.stringify(chats));
+                updateChatList();
             }
         }
 
-        setInterval(() => {
-            updateHistory();
-        }, 3000);
+        function openChat(chatId) {
+            activeChat = chatId;
+            document.getElementById('chatTitle').textContent = chats[chatId].name;
+            document.getElementById('chatMessages').innerHTML = '';
+            chats[chatId].messages.forEach(displayMessage);
+        }
+
+        function sendMessage() {
+            let message = document.getElementById('newMessage').value;
+            if (message.trim() && activeChat) {
+                let msgObj = { chatId: activeChat, message: message };
+                socket.send(JSON.stringify(msgObj));
+                chats[activeChat].messages.push(message);
+                localStorage.setItem('chats', JSON.stringify(chats));
+                displayMessage(message);
+                document.getElementById('newMessage').value = '';
+            }
+        }
+
+        function displayMessage(message) {
+            let messageDiv = document.createElement('div');
+            messageDiv.textContent = message;
+            document.getElementById('chatMessages').appendChild(messageDiv);
+        }
+
+        updateChatList();
     </script>
 </body>
 </html>
