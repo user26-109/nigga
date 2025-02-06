@@ -1,11 +1,56 @@
-<html>
-    <hi>
-        hello niggas!!!
-    </hi>
-    <body>
-        <h2>about nigga1:</h2>
-        <p>
-            i am nigga
-        </p>
-    </body>
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cool Webpage</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            text-align: center;
+            color: white;
+            padding: 50px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        button {
+            background: #ff758c;
+            border: none;
+            padding: 10px 20px;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+
+            button:hover {
+                background: #ff4365;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to My Cool Webpage</h1>
+        <p>Click the button below to see something cool!</p>
+        <button onclick="showMessage()">Click Me!</button>
+        <p id="message" style="display:none; margin-top: 20px; font-size: 20px;"></p>
+    </div>
+
+    <script>
+        function showMessage() {
+            document.getElementById('message').innerText = "You're awesome! ✨";
+            document.getElementById('message').style.display = 'block';
+        }
+    </script>
+</body>
 </html>
