@@ -7,24 +7,30 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: #f4f4f4;
-            text-align: center;
-            color: #333;
+            background: #000;
+            color: #FFA500;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: #111;
             padding: 20px;
+            overflow-y: auto;
         }
 
         .container {
-            max-width: 800px;
-            margin: auto;
+            flex-grow: 1;
             padding: 20px;
-            background: white;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            text-align: left;
+            background: #222;
+            display: flex;
+            flex-direction: column;
         }
 
         .post {
-            border-bottom: 1px solid #ccc;
+            border-bottom: 1px solid #FFA500;
             padding: 10px 0;
         }
 
@@ -33,35 +39,52 @@
             height: 80px;
             margin-top: 10px;
             padding: 10px;
+            background: #333;
+            color: #FFA500;
+            border: 1px solid #FFA500;
         }
 
         button {
-            background: #007BFF;
+            background: #FFA500;
             border: none;
             padding: 10px 20px;
-            color: white;
+            color: black;
             font-size: 16px;
             cursor: pointer;
-            border-radius: 3px;
-            transition: 0.3s;
+            margin-top: 10px;
         }
 
             button:hover {
-                background: #0056b3;
+                background: #ff8500;
             }
     </style>
 </head>
 <body>
+    <div class="sidebar">
+        <h2>Chat History</h2>
+        <div id="chatHistory"></div>
+        <button onclick="changePassword()">Change Password</button>
+    </div>
     <div class="container">
         <h1>Simple Forum</h1>
-        <div id="posts">
-            <div class="post">Welcome to the forum! Feel free to share your thoughts.</div>
-        </div>
-        <textarea id="newPost" placeholder="Write a comment..."></textarea>
+        <div id="posts"></div>
+        <textarea id="newPost" placeholder="Write a message..."></textarea>
         <button onclick="addPost()">Post</button>
     </div>
 
     <script>
+        let password = localStorage.getItem('forumPassword') || '12345';
+        let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
+
+        function authenticate() {
+            let inputPassword = prompt("Enter password:");
+            if (inputPassword !== password) {
+                alert("Incorrect password!");
+                authenticate();
+            }
+        }
+        authenticate();
+
         function addPost() {
             let postContent = document.getElementById('newPost').value;
             if (postContent.trim() !== "") {
@@ -69,9 +92,30 @@
                 postDiv.classList.add('post');
                 postDiv.textContent = postContent;
                 document.getElementById('posts').appendChild(postDiv);
+                chatHistory.push(postContent);
+                localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
                 document.getElementById('newPost').value = "";
+                updateHistory();
             }
         }
+
+        function updateHistory() {
+            document.getElementById('chatHistory').innerHTML = chatHistory.map(msg => `<div>${msg}</div>`).join('');
+        }
+        updateHistory();
+
+        function changePassword() {
+            let newPassword = prompt("Enter new password:");
+            if (newPassword) {
+                password = newPassword;
+                localStorage.setItem('forumPassword', password);
+                alert("Password changed successfully!");
+            }
+        }
+
+        setInterval(() => {
+            updateHistory();
+        }, 3000);
     </script>
 </body>
 </html>
