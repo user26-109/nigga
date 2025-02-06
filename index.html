@@ -3,53 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cool Webpage</title>
+    <title>Simple Forum</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            background: #f4f4f4;
             text-align: center;
-            color: white;
-            padding: 50px;
+            color: #333;
+            padding: 20px;
         }
 
         .container {
-            max-width: 600px;
+            max-width: 800px;
             margin: auto;
             padding: 20px;
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+
+        .post {
+            border-bottom: 1px solid #ccc;
+            padding: 10px 0;
+        }
+
+        textarea {
+            width: 100%;
+            height: 80px;
+            margin-top: 10px;
+            padding: 10px;
         }
 
         button {
-            background: #ff758c;
+            background: #007BFF;
             border: none;
             padding: 10px 20px;
             color: white;
-            font-size: 18px;
+            font-size: 16px;
             cursor: pointer;
-            border-radius: 5px;
+            border-radius: 3px;
             transition: 0.3s;
         }
 
             button:hover {
-                background: #ff4365;
+                background: #0056b3;
             }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Welcome to My Cool Webpage</h1>
-        <p>Click the button below to see something cool!</p>
-        <button onclick="showMessage()">Click Me!</button>
-        <p id="message" style="display:none; margin-top: 20px; font-size: 20px;"></p>
+        <h1>Simple Forum</h1>
+        <div id="posts">
+            <div class="post">Welcome to the forum! Feel free to share your thoughts.</div>
+        </div>
+        <textarea id="newPost" placeholder="Write a comment..."></textarea>
+        <button onclick="addPost()">Post</button>
     </div>
 
     <script>
-        function showMessage() {
-            document.getElementById('message').innerText = "You're awesome! ✨";
-            document.getElementById('message').style.display = 'block';
+        function addPost() {
+            let postContent = document.getElementById('newPost').value;
+            if (postContent.trim() !== "") {
+                let postDiv = document.createElement('div');
+                postDiv.classList.add('post');
+                postDiv.textContent = postContent;
+                document.getElementById('posts').appendChild(postDiv);
+                document.getElementById('newPost').value = "";
+            }
         }
     </script>
 </body>
